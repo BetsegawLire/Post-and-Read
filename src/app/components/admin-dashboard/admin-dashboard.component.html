@@ -1,0 +1,100 @@
+
+<div class="container">
+    <div class="header">
+      <h2>Admin Dashboard</h2>
+    </div>
+    <div class="flex-container row row-cols-lg-2" *ngFor="let post of totalPosts">
+      <div class="child-1 col-lg-3">
+        <img src={{post.url}} alt="">
+      </div>
+      <div class="child-2 col-lg-9">
+        <div class="paragraph">{{post.title}}</div>
+        <div class="read-more"><a style="text-decoration: none; color: blue;">Read More</a></div>
+        <div class="post-date">{{post.timeStamp}}</div>
+        <div class="post-by">Posted By: Betsegaw Lire</div>
+        <div class="tags"></div>
+        <div class="view-icons">
+          <div class="view"><fa-icon style="font-size: 15px; margin-right: 0px;" [icon]="view"></fa-icon></div>
+          <div class="icons">
+            <!-- <fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="yahoo"></fa-icon> -->
+            <a (click)="onAccept(post)"><fa-icon style="font-size: 23px; margin-right: 15px;" [icon]="accept"></fa-icon></a>
+            <a (click)="onDecline(post)"><fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="decline"></fa-icon></a>
+            <a (click)="onEdit(post)"><fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="edit"></fa-icon></a>
+            <a (click)="onDelete(post)"><fa-icon style="font-size: 20px;" [icon]="delete"></fa-icon></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-10" style="margin: auto auto;" *ngIf="updateFormVisible && postToEdit.id == post.id">
+        
+        <div class="mb-3">
+          <label for="exampleInputEmail1" class="form-label">Title</label>
+          <input type="text" class="form-control" id="exampleInputEmail1" [(ngModel)]="post.title">
+        </div>
+  
+        <div class="mb-3">
+          <label for="Image" class="mx-3">Image File</label>
+          <input type="file" (change)="upload($event)">
+          <!-- <button (click)="uploadImage()">
+            Upload Image
+          </button> -->
+        </div>
+
+        <mat-form-field class="example-chip-list" appearance="fill">
+          <!-- <mat-label>Favorite Fruits</mat-label> -->
+          <mat-chip-grid #chipGrid aria-label="Enter tag">
+            <div style="display: block;">
+              <mat-chip-row *ngFor="let tag of tags"
+                          (removed)="remove(tag)"
+                          [editable]="true"
+                          (edited)="onAdminEdit(tag, $event)">
+              {{tag.name}}
+              <button matChipRemove [attr.aria-label]="'remove ' + tag.name">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            </div>
+            
+              <input placeholder="Add Tag..."
+                   [matChipInputFor]="chipGrid"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="onAdd($event)"
+                   />
+            
+          </mat-chip-grid>
+        </mat-form-field>
+  
+        <div class="editor">
+          <editor [(ngModel)]="post.content" [init]="{
+          base_url: '/tinymce', 
+          suffix: '.min',
+           height: 300,
+      
+           plugins: [
+      
+              'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
+      
+             'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+      
+             'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
+      
+           ],
+      
+           toolbar:
+      
+            'undo redo | casechange blocks | bold italic backcolor | \
+      
+            alignleft aligncenter alignright alignjustify | \
+      
+            bullist numlist checklist outdent indent | removeformat | a11ycheck code table help'
+      
+         }"></editor>
+      </div>
+        
+        <button type="button" class="btn btn-primary mx-3" (click)="updatePost(post)">Update</button>
+        <button type="button" class="btn btn-danger" (click)="cancelUpdate()">Cancel</button>
+      </div>
+
+    </div>
+  </div>

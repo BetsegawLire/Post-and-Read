@@ -112,3 +112,9 @@ img {
     clear: left;
     /* float: right; */
 }
+
+.example-chip-list {
+    width: 100%;
+    padding: 10px;
+    /* margin: 100px; */
+  }

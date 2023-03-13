@@ -1,3 +1,4 @@
+// import { Component } from '@angular/core';
 import { formatDate } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
@@ -10,24 +11,31 @@ import {faTrash} from '@fortawesome/free-solid-svg-icons'
 import {faEye} from '@fortawesome/free-solid-svg-icons'
 import {faAdd} from '@fortawesome/free-solid-svg-icons'
 import { __values } from 'tslib';
-import { Post } from './models/post';
-import { DataService } from './shared/data.service';
+import { Post } from '../../models/post';
+import { DataService } from '../../shared/data.service';
 
 import { AngularFireStorage } from '@angular/fire/compat/storage'
 import { finalize, last, switchMap } from 'rxjs';
 
 import firebase from 'firebase/compat/app'
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import IPost from './models/posts';
+import IPost from '../../models/posts';
 
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+// import {Component} from '@angular/core';
+import {MatChipEditedEvent, MatChipInputEvent} from '@angular/material/chips';
 
- 
+export interface Tag {
+  name: string;
+}
+
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-user',
+  templateUrl: './user.component.html',
+  styleUrls: ['./user.component.css']
 })
-export class AppComponent implements OnInit {
+export class UserComponent {
+
   title = 'user_dashboard';
   yahoo = faYahoo;
   accept = faCheck; 
@@ -63,6 +71,11 @@ export class AppComponent implements OnInit {
   user: firebase.User | null = null
   newURL: string = ''
 
+  tags: Tag[] = [];
+
+  noPost: boolean = true
+  
+
   // now =  Date.now(formatDate());
 
   // private firestore: FirebaseTSFirestore;
@@ -77,6 +90,7 @@ export class AppComponent implements OnInit {
   addPost() {
     this.formVisible = !this.formVisible;
     this.addOrUpdate = 'Add';
+    this.noPost = false
     // alert(this.now);
   }
 
@@ -141,6 +155,8 @@ export class AppComponent implements OnInit {
   editPost(post: IPost) {
     this.updateFormVisible = true;
     this.postToEdit = post;
+    this.tags = post.tags
+    // this.image = post.url
     // this.formVisible = !this.formVisible;
     // this.addOrUpdate = 'Update';
 
@@ -183,6 +199,9 @@ export class AppComponent implements OnInit {
         console.log(this.newURL)
 
         // post.timeStamp = firebase.firestore.FieldValue.serverTimestamp()
+        post.timeStamp = (new Date).toLocaleDateString()
+
+        post.tags = this.tags
         // var date = new Date(Number(post.timeStamp)).toLocaleDateString("en-us")
         // alert(date)
         // const current_timestamp = Timestamp.fromDate(new Date())
@@ -197,6 +216,7 @@ export class AppComponent implements OnInit {
 
         this.postTitle = ''
         this.postContent = ''
+        this.tags = []
         
         // this.formVisible = false
       },
@@ -217,10 +237,12 @@ export class AppComponent implements OnInit {
 
   cancelPost() {
     this.formVisible = false;
+    this.tags = []
   }
 
   cancelUpdate() {
     this.updateFormVisible = false
+    this.tags = []
   }
 
   upload($event: any) {
@@ -313,12 +335,19 @@ export class AppComponent implements OnInit {
           content: this.postContent,
           fileName: postPath,
           url,
-          // timeStamp: firebase.firestore.FieldValue.serverTimestamp()
+          // timeStamp: firebase.firestore.FieldValue.serverTimestamp(),
+          timeStamp: (new Date).toLocaleDateString(),
+          status: 'Pending',
+          tags: this.tags
         }
 
-        // this.data.createPost(post)
+        this.data.createPost(post)
 
         console.log(post)
+
+        // this.data.formatDate(Date(post.timeStamp))
+
+
 
         this.postTitle = ''
         this.postContent = ''
@@ -334,6 +363,46 @@ export class AppComponent implements OnInit {
   onAdmin() {
     alert('Admin Dashboard')
   }
+
+  // chips material start
+  addOnBlur = true;
+  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  
+
+  onAdd(event: MatChipInputEvent): void {
+    const value = (event.value || '').trim();
+
+    // Add our fruit
+    if (value) {
+      this.tags.push({name: value});
+    }
+
+    // Clear the input value
+    event.chipInput!.clear();
+  }
+
+  remove(tag: Tag): void {
+    const index = this.tags.indexOf(tag);
+
+    if (index >= 0) {
+      this.tags.splice(index, 1);
+    }
+  }
+
+  onEdit(tag: Tag, event: MatChipEditedEvent) {
+    const value = event.value.trim();
+
+    // Remove fruit if it no longer has a name
+    if (!value) {
+      this.remove(tag);
+      return;
+    }
+
+    // Edit existing fruit
+    const index = this.tags.indexOf(tag);
+    if (index >= 0) {
+      this.tags[index].name = value;
+    }
+  }
+  // chips material end
 }
-
-

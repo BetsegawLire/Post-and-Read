@@ -1,0 +1,220 @@
+
+<div class="container">
+    <div class="header">
+      <h2>User Dashboard</h2>
+    </div>
+    <div class="add-post">
+      <button class="btn" (click)="addPost()" style="background-color: #16EB12; font-weight: bold; font-size: 20px; line-height: 15px;">Add Post <fa-icon style="font-size: 25px;" [icon]="add"></fa-icon></button>
+      <!-- <button class="btn" (click)="onAdmin()" routerLink="/admin" style="margin-left: 20px; background-color: #16EB12; font-weight: bold; font-size: 20px; line-height: 15px;">Admin Dashboard</button> -->
+      
+    </div>
+  
+    <!-- post form -->
+    <!-- <form *ngIf="formVisible"> -->
+      <div *ngIf="formVisible">
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Title</label>
+        <input type="text" class="form-control" id="exampleInputEmail1" [(ngModel)]="postTitle">
+      </div>
+      <!-- <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Date</label>
+        <input type="text" class="form-control" id="exampleInputPassword1" [(ngModel)]="date">
+      </div> -->
+      <!-- <div class="mb-3">
+        <label for="exampleInputPassword2" class="form-label">View</label>
+        <input type="text" class="form-control" id="exampleInputPassword2" [(ngModel)]="postView">
+      </div> -->
+      <div class="mb-3">
+        <label for="Image" class="mx-3">Image File</label>
+        <input type="file" (change)="upload($event)">
+        <!-- <button (click)="uploadImage()">
+          Upload Image
+        </button> -->
+      </div>
+
+      <mat-form-field class="example-chip-list" appearance="fill">
+        <!-- <mat-label>Favorite Fruits</mat-label> -->
+        <mat-chip-grid #chipGrid aria-label="Enter tag">
+          <div style="display: block;">
+            <mat-chip-row *ngFor="let tag of tags"
+                        (removed)="remove(tag)"
+                        [editable]="true"
+                        (edited)="onEdit(tag, $event)">
+            {{tag.name}}
+            <button matChipRemove [attr.aria-label]="'remove ' + tag.name">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+          </div>
+          
+            <input placeholder="Add Tag..."
+                 [matChipInputFor]="chipGrid"
+                 [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                 [matChipInputAddOnBlur]="addOnBlur"
+                 (matChipInputTokenEnd)="onAdd($event)"/>
+          
+        </mat-chip-grid>
+      </mat-form-field>
+  
+      <div class="editor">
+        <editor [(ngModel)]="postContent" [init]="{
+        base_url: '/tinymce', 
+        suffix: '.min',
+         height: 300,
+    
+         plugins: [
+    
+            'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
+    
+           'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+    
+           'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
+    
+         ],
+    
+         toolbar:
+    
+          'undo redo | casechange blocks | bold italic backcolor | \
+    
+          alignleft aligncenter alignright alignjustify | \
+    
+          bullist numlist checklist outdent indent | removeformat | a11ycheck code table help'
+    
+       }"></editor>
+    </div>
+  
+      <button type="button" class="btn btn-primary mx-3" (click)="uploadImage()">Add</button>
+      <button type="button" class="btn btn-danger" (click)="cancelPost()">Cancel</button>
+    </div>
+    <!-- </form> -->
+    <!-- end of post form -->
+  
+    <!-- update form -->
+    <!-- <div *ngIf="updateFormVisible">
+      <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Title</label>
+        <input type="text" class="form-control" id="exampleInputEmail1" [(ngModel)]="postTitle">
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Date</label>
+        <input type="text" class="form-control" id="exampleInputPassword1" [(ngModel)]="date">
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputPassword2" class="form-label">View</label>
+        <input type="text" class="form-control" id="exampleInputPassword2" [(ngModel)]="postView">
+      </div>
+      <button type="button" class="btn btn-primary" (click)="updatePost()">Update</button>
+    </div> -->
+    <!-- end of update form -->
+
+    <div *ngIf="postList2.length == 0 && noPost">
+      <h2 class="text-center">There is no post yet</h2>
+    </div>
+  
+    <div class="flex-container row row-cols-lg-2" *ngFor="let post of postList2">
+      
+      
+      <div class="child-1 col-lg-3">
+        <img src={{post.url}} alt="">
+      </div>
+      <div class="child-2 col-lg-9">
+        <div class="paragraph">{{post.title}}</div>
+        <div class="read-more"><a href="#" style="text-decoration: none; color: blue;">Read More</a></div>
+        <div class="post-date">{{post.timeStamp}}</div>
+        <!-- <div class="post-by">Posted By: Betsegaw Lire</div> -->
+        <span *ngFor="let tag of post.tags">
+          <span class="row">
+            <span class="col col-lg-2 col-md-2" style="display: inline-block;">
+
+              {{tag.name + " "}}
+            </span>
+          </span>
+        </span>
+        <div class="view-icons">
+          <div class="view"><fa-icon style="font-size: 15px; margin-right: 0px;" [icon]="view"></fa-icon></div>
+          <!-- <div>{{post.status}}</div> -->
+          <span class="badge bg-success text-center" style="line-height: 7px;" *ngIf="post.status == 'Approved'">{{post.status}}</span>
+          <span class="badge bg-danger" style="line-height: 7px;" *ngIf="post.status == 'DisApproved'">{{post.status}}</span>
+          <span class="badge bg-warning text-dark" style="line-height: 7px;" *ngIf="post.status == 'Pending'">{{post.status}}</span>
+          <div class="icons d-flex">
+            <!-- <fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="yahoo"></fa-icon> -->
+            <!-- <a href="#"><fa-icon style="font-size: 23px; margin-right: 15px;" [icon]="accept"></fa-icon></a> -->
+            <!-- <a href="#"><fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="decline"></fa-icon></a> -->
+            <a (click)="editPost(post)"><fa-icon style="font-size: 20px; margin-right: 20px;" [icon]="edit"></fa-icon></a>
+            <a (click)="deletePost(post)"><fa-icon style="font-size: 20px; margin-right: 15px;" [icon]="delete"></fa-icon></a>
+          </div>
+        </div>
+      </div>
+  
+      <div class="col-lg-10" style="margin: auto auto;" *ngIf="updateFormVisible && postToEdit.id == post.id">
+        
+        <div class="mb-3">
+          <label for="exampleInputEmail1" class="form-label">Title</label>
+          <input type="text" class="form-control" id="exampleInputEmail1" [(ngModel)]="post.title">
+        </div>
+  
+        <div class="mb-3">
+          <label for="Image" class="mx-3">Image File</label>
+          <input type="file" (change)="upload($event)">
+          <!-- <button (click)="uploadImage()">
+            Upload Image
+          </button> -->
+        </div>
+
+        <mat-form-field class="example-chip-list" appearance="fill">
+          <!-- <mat-label>Favorite Fruits</mat-label> -->
+          <mat-chip-grid #chipGrid aria-label="Enter tag">
+            <div style="display: block;">
+              <mat-chip-row *ngFor="let tag of tags"
+                          (removed)="remove(tag)"
+                          [editable]="true"
+                          (edited)="onEdit(tag, $event)">
+              {{tag.name}}
+              <button matChipRemove [attr.aria-label]="'remove ' + tag.name">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </mat-chip-row>
+            </div>
+            
+              <input placeholder="Add Tag..."
+                   [matChipInputFor]="chipGrid"
+                   [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+                   [matChipInputAddOnBlur]="addOnBlur"
+                   (matChipInputTokenEnd)="onAdd($event)"
+                   />
+            
+          </mat-chip-grid>
+        </mat-form-field>
+  
+        <div class="editor">
+          <editor [(ngModel)]="post.content" [init]="{
+          base_url: '/tinymce', 
+          suffix: '.min',
+           height: 300,
+      
+           plugins: [
+      
+              'a11ychecker','advlist','advcode','advtable','autolink','checklist','export',
+      
+             'lists','link','image','charmap','preview','anchor','searchreplace','visualblocks',
+      
+             'powerpaste','fullscreen','formatpainter','insertdatetime','media','table','help','wordcount'
+      
+           ],
+      
+           toolbar:
+      
+            'undo redo | casechange blocks | bold italic backcolor | \
+      
+            alignleft aligncenter alignright alignjustify | \
+      
+            bullist numlist checklist outdent indent | removeformat | a11ycheck code table help'
+      
+         }"></editor>
+      </div>
+        
+        <button type="button" class="btn btn-primary mx-3" (click)="updatePost(post)">Update</button>
+        <button type="button" class="btn btn-danger" (click)="cancelUpdate()">Cancel</button>
+      </div>
+    </div>
+  
